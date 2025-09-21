@@ -1,0 +1,54 @@
+test:run(500,10).
+Starting loggersSetting peers for workersSleeping for two secondslog: 1 ringo {received,{hello,57}}
+log: 1 john {sending,{hello,57}}
+log: 3 john {received,{hello,77}}
+log: 3 ringo {sending,{hello,77}}
+log: 1 ringo {received,{hello,68}}
+log: 1 paul {sending,{hello,68}}
+log: 2 john {received,{hello,20}}
+log: 5 george {received,{hello,20}}
+log: 2 paul {sending,{hello,20}}
+log: 5 ringo {sending,{hello,20}}
+log: 6 george {received,{hello,84}}
+log: 6 john {sending,{hello,84}}
+log: 3 george {received,{hello,16}}
+log: 3 paul {sending,{hello,16}}
+log: 7 paul {received,{hello,7}}
+log: 7 john {sending,{hello,7}}
+log: 6 george {received,{hello,97}}
+log: 6 ringo {sending,{hello,97}}
+log: 8 george {received,{hello,23}}
+log: 8 john {sending,{hello,23}}
+log: 7 john {received,{hello,96}}
+log: 7 ringo {sending,{hello,96}}
+log: 9 ringo {received,{hello,60}}
+log: 9 paul {sending,{hello,60}}
+log: 11 george {received,{hello,24}}
+log: 11 ringo {sending,{hello,24}}
+log: 10 ringo {received,{hello,56}}
+log: 10 john {sending,{hello,56}}
+log: 10 ringo {received,{hello,79}}
+log: 10 paul {sending,{hello,79}}
+log: 11 george {received,{hello,18}}
+log: 11 john {sending,{hello,18}}
+log: 11 ringo {received,{hello,33}}
+log: 11 paul {sending,{hello,33}}
+log: 14 ringo {received,{hello,10}}
+log: 14 george {sending,{hello,10}}
+log: 15 paul {received,{hello,40}}
+log: 15 george {sending,{hello,40}}
+log: 12 ringo {received,{hello,75}}
+log: 12 john {sending,{hello,75}}
+log: 13 paul {received,{hello,86}}
+log: 13 john {sending,{hello,86}}
+log: 17 paul {received,{hello,27}}
+log: 17 ringo {sending,{hello,27}}
+log: 16 john {received,{hello,95}}
+log: 16 george {sending,{hello,95}}
+log: 19 ringo {received,{hello,50}}
+log: 19 paul {sending,{hello,50}}
+Stopping logger and workersstop
+
+
+Clearly okay now but we don't have a message queue. WE are not sure whether the error is incorrect or not.
+We are only sure when one message is perfectly before the other one. Is that case correct ordering
