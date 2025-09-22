@@ -14,7 +14,7 @@ run(Sleep, Jitter) ->
     worker:peers(C, [A, B, D]),
     worker:peers(D, [A, B, C]),
     io:format("Sleeping for five seconds"),
-    timer:sleep(5000),
+    timer:sleep(120000),
     io:format("Stopping logger and workers"),
     my_logger:stop(Log),
     worker:stop(A),

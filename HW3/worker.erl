@@ -36,8 +36,9 @@ loop(Name, Log, Peers, Sleep, Jitter,Clock) ->
         Time = time:inc(Name,Clock),
         Message = {hello, random:uniform(100)},
         Selected ! {msg, Time, Message},
-        jitter(Jitter),
+        %jitter(Jitter),
         Log ! {log, Name, Time, {sending,Message}},
+        jitter(Jitter),
         loop(Name, Log, Peers, Sleep, Jitter,Time)
     end.
 
