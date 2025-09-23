@@ -24,11 +24,13 @@ loop(Queue,Clock,QueueFile,Index)->
         {log, From, Time, Msg} ->
             case vect:safe(Time,Clock) of 
                 true -> 
-                    my_logger:log(From,Time,Msg),
+                    UpdatedClock=vect:update(From,Time,Clock),
+                    %my_logger:log(From,Time,Msg),
                     UpdatedClock=vect:update(From,Time,Clock),
                     loop(Queue,UpdatedClock,QueueFile,Index+1);
                 false ->
                     NewQueue = holdb_queue_vect:add(From,Time,Msg,Unsafe),
+                    %io:format("~p ~n",[NewQueue]),
                     %io:format(QueueFile,"~p,~p ~n", [Index,holdb_queue_vect:size(NewQueue)]),
                     NewClock = vect:update(From,Time,Clock),
                     loop(NewQueue,NewClock,QueueFile,Index+1)
@@ -45,6 +47,7 @@ loop(Queue,Clock,QueueFile,Index)->
 log(From, Time, Msg) ->
     %ok = ensure_dir("./test/testLamp3.csv"),
     %{ok, IoDevice} = file:open("./test/testLamp3.csv", [append]),
+    %ok.
     io:format("log: ~w ~w ~p~n",[Time, From, Msg]).
     %io:format(IoDevice, "~w,~w,~p~n", [Time, From, Msg]),
     %file:close(IoDevice).

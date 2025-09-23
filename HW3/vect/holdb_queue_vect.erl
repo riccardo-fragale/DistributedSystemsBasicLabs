@@ -18,14 +18,16 @@ add(From,Time,Msg,Queue)->
 
 %Sort the queue based on time
 sort(Queue)->
-    lists:keysort(2,Queue).
+    lists:sort(
+        fun({_,Time1,_},{_,Time2,_}) -> vect:leq(Time1,Time2) end,
+        Queue).
 
 %Divide the holdback queue based on safeness of time
 partition(Queue,Clock)->
     {Safe,Unsafe} = lists:partition(
 fun({_F,Time,_Msg}) -> vect:safe(Time,Clock) end, Queue
     ),
-    {lists:keysort(2,Safe),lists:keysort(2,Unsafe)}.
+    {sort(Safe),sort(Unsafe)}.
 
 
 %Return the size of the queue
