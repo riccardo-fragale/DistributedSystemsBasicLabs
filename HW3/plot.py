@@ -6,7 +6,7 @@ import numpy as np
 def main():
     # Define directory and file name
     directory = "./test"
-    filename = "testLamportQueueLength2.csv"
+    filename = "testVectorQueueLength2.csv"
     filepath = os.path.join(directory, filename)
 
     # Check if file exists
@@ -37,7 +37,7 @@ def main():
     plt.grid(True, which="both", axis="y", linestyle="--", linewidth=0.7)
 
     # Save plot in same directory
-    save_path = os.path.join(directory, "PlotTestLamportLength2.png")
+    save_path = os.path.join(directory, "PlotTestVectorLength2.png")
     plt.savefig(save_path, bbox_inches="tight")
     print(f"Plot saved as {save_path}")
 
@@ -46,7 +46,10 @@ def main():
 
     # Print maximum value
     max_value = df["Value"].max()
+    avg_value = df["Value"].mean()
     print("Maximum Holdback queue length:", max_value)
+    print("Average Holdback queue length:",avg_value)
+
 
 if __name__ == "__main__":
     main()
