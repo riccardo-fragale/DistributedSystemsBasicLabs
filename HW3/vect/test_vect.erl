@@ -14,7 +14,7 @@ run(Sleep, Jitter) ->
     worker_vect:peers(C, [A, B, D]),
     worker_vect:peers(D, [A, B, C]),
     io:format("Sleeping for two minutes"),
-    timer:sleep(120000),
+    timer:sleep(2000),
     io:format("Stopping logger and workers"),
     my_loggy_vect:stop(Log),
     worker_vect:stop(A),

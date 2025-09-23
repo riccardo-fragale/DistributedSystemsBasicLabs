@@ -31,26 +31,26 @@ loop(Queue,Clock,QueueFile,Index)->
                 false ->
                     NewQueue = holdb_queue_vect:add(From,Time,Msg,Unsafe),
                     %io:format("~p ~n",[NewQueue]),
-                    io:format(QueueFile,"~p,~p ~n", [Index,holdb_queue_vect:size(NewQueue)]),
-                    io:format("~p,~p,~p~n",[Index,holdb_queue_vect:size(NewQueue),NewQueue]),
+                    %io:format(QueueFile,"~p,~p ~n", [Index,holdb_queue_vect:size(NewQueue)]),
+                    %io:format("~p,~p,~p~n",[Index,holdb_queue_vect:size(NewQueue),NewQueue]),
                     NewClock = vect:update(From,Time,Clock),
                     loop(NewQueue,NewClock,QueueFile,Index+1)
             end;
         stop ->
             %Send remaining queue in order
             Sorted = holdb_queue_vect:sort(Unsafe),
-            io:format(QueueFile, "Final,~p ~n", [holdb_queue_vect:size(Sorted)]),
+            %io:format(QueueFile, "Final,~p ~n", [holdb_queue_vect:size(Sorted)]),
             log(Unsafe),
             file:close(QueueFile),
             ok
     end.
 
 log(From, Time, Msg) ->
-    %ok = ensure_dir("./test/testLamp3.csv"),
-    %{ok, IoDevice} = file:open("./test/testLamp3.csv", [append]),
-    io:format("log: ~w ~w ~p~n",[Time, From, Msg]).
-    %io:format(IoDevice, "~w,~w,~p~n", [Time, From, Msg]),
-    %file:close(IoDevice).
+    ok = ensure_dir("./test/testVect1.csv"),
+    {ok, IoDevice} = file:open("./test/testVect1.csv", [append]),
+    %io:format("log: ~w ~w ~p~n",[Time, From, Msg]).
+    io:format(IoDevice, "~w,~w,~p~n", [Time, From, Msg]),
+    file:close(IoDevice).
 
 log(Queue) ->
     lists:foreach(
