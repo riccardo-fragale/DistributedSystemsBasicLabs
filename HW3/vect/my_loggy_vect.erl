@@ -1,4 +1,4 @@
--module(my_logger).
+-module(my_loggy_vect).
 
 -export([start/1, stop/1]).
 -export([log/1]).
@@ -13,30 +13,30 @@ stop(Logger)->
 
 %QueueFile is where to dump the messages
 init(Nodes)->
-    ok = ensure_dir("./test/testLamportQueueLength2.csv"),
-    {ok, QueueFile} = file:open("./test/testLamportQueueLength2.csv", [append]),
-    loop(holdb_queue:new(),time:clock(Nodes),QueueFile,0).
+    %ok = ensure_dir("./test/testLamportQueueLength2.csv"),
+    {ok, QueueFile} = file:open(".././test/testLamportQueueLength2.csv", [append]),
+    loop(holdb_queue_vect:new(),vect:clock(Nodes),QueueFile,0).
 
 loop(Queue,Clock,QueueFile,Index)->
-    {Safe,Unsafe} = holdb_queue:partition(Queue,Clock),
+    {Safe,Unsafe} = holdb_queue_vect:partition(Queue,Clock),
     log(Safe),
     receive
         {log, From, Time, Msg} ->
-            case time:safe(Time,Clock) of 
+            case vect:safe(Time,Clock) of 
                 true -> 
                     my_logger:log(From,Time,Msg),
-                    UpdatedClock=time:update(From,Time,Clock),
+                    UpdatedClock=vect:update(From,Time,Clock),
                     loop(Queue,UpdatedClock,QueueFile,Index+1);
                 false ->
-                    NewQueue = holdb_queue:add(From,Time,Msg,Unsafe),
-                    io:format(QueueFile,"~p,~p ~n", [Index,holdb_queue:size(NewQueue)]),
-                    NewClock = time:update(From,Time,Clock),
+                    NewQueue = holdb_queue_vect:add(From,Time,Msg,Unsafe),
+                    %io:format(QueueFile,"~p,~p ~n", [Index,holdb_queue_vect:size(NewQueue)]),
+                    NewClock = vect:update(From,Time,Clock),
                     loop(NewQueue,NewClock,QueueFile,Index+1)
             end;
         stop ->
             %Send remaining queue in order
-            Sorted = holdb_queue:sort(Unsafe),
-            io:format(QueueFile, "Final,~p ~n", [holdb_queue:size(Sorted)]),
+            Sorted = holdb_queue_vect:sort(Unsafe),
+            %io:format(QueueFile, "Final,~p ~n", [holdb_queue_vect:size(Sorted)]),
             log(Unsafe),
             file:close(QueueFile),
             ok
@@ -51,7 +51,7 @@ log(From, Time, Msg) ->
 
 log(Queue) ->
     lists:foreach(
-        fun({From,Time,Msg}) -> my_logger:log(From,Time,Msg) end,
+        fun({From,Time,Msg}) -> my_loggy_vect:log(From,Time,Msg) end,
             Queue).
 
 ensure_dir(FilePath) ->

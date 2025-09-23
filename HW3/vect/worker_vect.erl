@@ -1,4 +1,4 @@
--module(worker).
+-module(worker_vect).
 
 -export([start/5, stop/1, peers/2]).
 
@@ -12,7 +12,7 @@ init(Name, Log, Seed, Sleep, Jitter) ->
     random:seed(Seed, Seed, Seed),
     receive 
         {peers, Peers} ->
-            loop(Name, Log, Peers, Sleep, Jitter,time:zero());
+            loop(Name, Log, Peers, Sleep, Jitter,vect:zero());
         stop ->
             ok
     end.
@@ -24,7 +24,7 @@ loop(Name, Log, Peers, Sleep, Jitter,Clock) ->
     Wait = random:uniform(Sleep),
     receive
         {msg, Time, Msg} ->
-            NewClock = time:rec(Name,Clock,Time),
+            NewClock = vect:rec(Name,Clock,Time),
             Log ! {log, Name, NewClock, {received, Msg}},
             loop(Name, Log, Peers, Sleep, Jitter,NewClock);
         stop ->
@@ -33,7 +33,7 @@ loop(Name, Log, Peers, Sleep, Jitter,Clock) ->
             Log ! {log, Name, time, {error, Error}}
     after Wait ->
         Selected = select(Peers),
-        Time = time:inc(Name,Clock),
+        Time = vect:inc(Name,Clock),
         Message = {hello, random:uniform(100)},
         Selected ! {msg, Time, Message},
         jitter(Jitter),
@@ -47,4 +47,3 @@ select(Peers) ->
 
 jitter(0) -> ok;
 jitter(Jitter) -> timer:sleep(random:uniform(Jitter)).
-
