@@ -18,7 +18,14 @@ add(From,Time,Msg,Queue)->
 
 %Sort the queue based on time
 sort(Queue)->
-    lists:keysort(2,Queue).
+    %lists:keysort(2,Queue).
+    lists:sort(
+        fun({_F1, T1, _M1}, {_F2, T2, _M2}) ->
+            % T1 should come before T2 if T1 happens-before T2
+            vect:leq(T1, T2) andalso not vect:leq(T2, T1)
+        end,
+        Queue
+    ).
 
 %Divide the holdback queue based on safeness of time
 partition(Queue,Clock)->

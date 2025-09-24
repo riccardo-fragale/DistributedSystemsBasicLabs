@@ -29,8 +29,8 @@ loop(Queue,Clock,QueueFile,Index)->
                     loop(Queue,UpdatedClock,QueueFile,Index+1);
                 false ->
                     NewQueue = holdb_queue:add(From,Time,Msg,Unsafe),
-                    io:format("~p ~n",[NewQueue]),
-                    io:format(QueueFile,"~p,~p ~n", [Index,holdb_queue:size(NewQueue)]),
+                    %io:format("~p ~n",[NewQueue]),
+                    %io:format(QueueFile,"~p,~p ~n", [Index,holdb_queue:size(NewQueue)]),
                     NewClock = time:update(From,Time,Clock),
                     loop(NewQueue,NewClock,QueueFile,Index+1)
             end;
@@ -46,8 +46,8 @@ loop(Queue,Clock,QueueFile,Index)->
 log(From, Time, Msg) ->
     %ok = ensure_dir("./test/testLamp3.csv"),
     %{ok, IoDevice} = file:open("./test/testLamp3.csv", [append]),
-    ok.
-    %io:format("log: ~w ~w ~p~n",[Time, From, Msg]).
+    %ok.
+    io:format("log: ~w ~w ~p~n",[Time, From, Msg]).
     %io:format(IoDevice, "~w,~w,~p~n", [Time, From, Msg]),
     %file:close(IoDevice).
 
