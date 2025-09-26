@@ -48,8 +48,8 @@ loop(Queue,Clock,QueueFile,Index)->
 log(From, Time, Msg) ->
     ok = ensure_dir("./test/testVect1.csv"),
     {ok, IoDevice} = file:open("./test/testVect1.csv", [append]),
-    %io:format("log: ~w ~w ~p~n",[Time, From, Msg]).
-    io:format(IoDevice, "~w,~w,~p~n", [Time, From, Msg]),
+    io:format("log: ~w ~w ~p~n",[Time, From, Msg]),
+    %io:format(IoDevice, "~w,~w,~p~n", [Time, From, Msg]),
     file:close(IoDevice).
 
 log(Queue) ->

@@ -6,5 +6,6 @@ erl -sname kista -setcookie 1234 -eval "
     compile:file(gms1),
     compile:file(test),
     compile:file(gui),
-    compile:file(worker).
+    compile:file(worker),
+    compile:file(gms2).
 "
