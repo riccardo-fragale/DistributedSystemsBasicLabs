@@ -1,29 +1,29 @@
 -module(gms2).
 
--export([leader/4]).
--export([slave/5]).
+-export([leader/5]).
+-export([slave/7]).
 -export([start/1]).
 -export([start/2]).
 -export([init/3]).
 -export([init/4]).
 -export([bcast/3]).
--export([election/4]).
+-export([election/6]).
 
 -define(timeout,10000).
 -define(arghh,100).
 
 %This module is a bit more complex and introduces some errors and some crashes
 
-leader(Id, Master, Slaves, Group) ->
+leader(Id, Master, N, Slaves, Group) ->
     receive
-            {mcast, Msg} -> bcast(Id, {msg, Msg}, Slaves),
+            {mcast, Msg} -> bcast(Id, {msg, N, Msg}, Slaves),
                             Master ! Msg,
-                            leader(Id, Master, Slaves, Group);
+                            leader(Id, Master, N+1, Slaves, Group);
             {join, Wrk, Peer} -> Slaves2 = lists:append(Slaves, [Peer]),
                                 Group2 = lists:append(Group, [Wrk]),
-                                bcast(Id, {view, [self()|Slaves2], Group2}, Slaves2),
+                                bcast(Id, {view, N, [self()|Slaves2], Group2}, Slaves2),
                                 Master ! {view, Group2},
-                                leader(Id, Master, Slaves2, Group2);
+                                leader(Id, Master, N+1, Slaves2, Group2);
             stop -> ok
     end.
 
@@ -43,22 +43,27 @@ crash(Id)->
             ok
     end.
 
-slave(Id, Master, Leader, Slaves, Group) ->
+slave(Id, Master, Leader, N, Last, Slaves, Group) ->
             receive     
                 {mcast, Msg} ->
                                 Leader ! {mcast, Msg},
-                                slave(Id, Master, Leader, Slaves, Group);
+                                slave(Id, Master, Leader, N, Last, Slaves, Group);
                 {join, Wrk, Peer} ->
                                 Leader ! {join, Wrk, Peer},
-                                slave(Id, Master, Leader, Slaves, Group);
-                {msg, Msg} ->
+                                slave(Id, Master, Leader, N, Last, Slaves, Group);
+                %%ignore duplicates
+                {msg, I, _} when I < N ->
+                                slave(Id, Master, Leader, N, Last, Slaves, Group);
+                {view, I, _, _} when I < N ->
+                                slave(Id, Master, Leader, N, Last, Slaves, Group);
+                {msg, N, Msg} ->
                                 Master ! Msg,
-                                slave(Id, Master, Leader, Slaves, Group);
-                {view, [Leader|Slaves2], Group2} ->
+                                slave(Id, Master, Leader, N+1, {msg, N, Msg}, Slaves, Group);
+                {view, N, [Leader|Slaves2], Group2} ->
                                 Master ! {view, Group2},
-                                slave(Id, Master, Leader, Slaves2, Group2);
+                                slave(Id, Master, Leader, N+1, {view, N, [Leader | Slaves2], Group2}, Slaves2, Group2);
                 {'DOWN', _Ref, process, Leader, _Reason} ->
-                                election(Id, Master, Slaves, Group);
+                                election(Id, Master, N, Last, Slaves, Group);
                 stop ->     ok
             end.
 
@@ -94,7 +99,7 @@ init(Id, Grp, Rnd, Master) ->
                 end.
 
 
-election(Id, Master, Slaves, [_|Group]) ->
+election(Id, Master, N, Last, Slaves, Group) ->
         Self = self(),
         case Slaves of
             [Self|Rest] -> 

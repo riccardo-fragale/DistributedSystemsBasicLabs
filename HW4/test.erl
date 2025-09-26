@@ -1,6 +1,6 @@
 -module(test). 
 
--compile(export_all). 
+-compile(export_all).
 % Used to create the first worker, try: 
 % % W1 = test:first(1, gms1, 1000) 
 first(N, Module, Sleep) -> 
