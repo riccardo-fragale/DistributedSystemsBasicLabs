@@ -1,4 +1,4 @@
--module(gms2).
+-module(gms3).
 
 -export([leader/5]).
 -export([slave/7]).
@@ -10,9 +10,9 @@
 -export([election/6]).
 
 -define(timeout,10000).
--define(arghh,100).
+-define(arghh,10000).
 
-%This module is a bit more complex and introduces some errors and some crashes
+%This module is a bit more complex and introduces node crashes detection
 
 leader(Id, Master, N, Slaves, Group) ->
     receive
@@ -74,7 +74,7 @@ start(Id) ->
 
 init(Id, Rnd, Master) ->
                 random:seed(Rnd,Rnd,Rnd),
-                leader(Id,Master,[],[Master]).
+                leader(Id,Master, 1, [],[Master]).
 
 %Old init for start(Id)
 %init(Id, Master) -> leader(Id, Master, [], [Master]).
@@ -90,10 +90,10 @@ init(Id, Grp, Rnd, Master) ->
                 Self = self(),
                 Grp ! {join, Master, Self},
                 receive
-                    {view, [Leader|Slaves], Group} ->
+                    {view, N, [Leader|Slaves], Group} ->
                                                     Master ! {view, Group},
                                                     erlang:monitor(process, Leader),
-                                                    slave(Id, Master, Leader, Slaves, Group)
+                                                    slave(Id, Master, Leader, N+1, {view, N, [Leader|Slaves], Group}, Slaves, Group)
                 after ?timeout ->
                     Master ! {error,"no reply from leader"}
                 end.
@@ -104,11 +104,14 @@ election(Id, Master, N, Last, Slaves, Group) ->
         case Slaves of
             [Self|Rest] -> 
                 io:format("Node ~w: I am the new leader~n", [Id]),
-                bcast(Id, {view, Slaves, Group}, Rest),
+                case Last of
+                    none -> ok;
+                    _ -> bcast(Id, Last, Rest)
+                end,
                 Master ! {view, Group},
-                leader(Id, Master, Rest, Group);
+                leader(Id, Master, N, Rest, Group);
             [Leader|Rest] ->
                 io:format("Node ~w: New Leader elected is ~w~n", [Id,Leader]),
                 erlang:monitor(process, Leader),
-                slave(Id, Master, Leader, Rest, Group)
+                slave(Id, Master, Leader, N, Last, Rest, Group)
         end.
