@@ -10,7 +10,7 @@
 -export([election/6]).
 
 -define(timeout,10000).
--define(arghh,10000).
+-define(arghh,1000).
 
 %This module is a bit more complex and introduces node crashes detection
 
@@ -53,13 +53,17 @@ slave(Id, Master, Leader, N, Last, Slaves, Group) ->
                                 slave(Id, Master, Leader, N, Last, Slaves, Group);
                 %%ignore duplicates
                 {msg, I, _} when I < N ->
+                                %io:format("Node ~w: Ignoring duplicate msg with index ~w (current N=~w)~n", [Id, I, N]),
                                 slave(Id, Master, Leader, N, Last, Slaves, Group);
                 {view, I, _, _} when I < N ->
+                                %io:format("Node ~w: Ignoring duplicate view with index ~w (current N=~w)~n",[Id,I,N]),
                                 slave(Id, Master, Leader, N, Last, Slaves, Group);
                 {msg, N, Msg} ->
+                                %io:format("Node ~w: Received msg with index ~w, updating N to ~w~n", [Id, N, N+1]),
                                 Master ! Msg,
                                 slave(Id, Master, Leader, N+1, {msg, N, Msg}, Slaves, Group);
                 {view, N, [Leader|Slaves2], Group2} ->
+                                %io:format("Node ~w: Received view with index ~w, updating N to ~w~n", [Id, N, N+1]),
                                 Master ! {view, Group2},
                                 slave(Id, Master, Leader, N+1, {view, N, [Leader | Slaves2], Group2}, Slaves2, Group2);
                 {'DOWN', _Ref, process, Leader, _Reason} ->
