@@ -6,7 +6,7 @@
 -define(arghh,1000).
 -define(recheck,50).
 -define(ignore,10).
--define(timeout, 150).
+-define(timeout, 500).
 -define(attempts, 3).
 
 %Leader
@@ -124,7 +124,7 @@ leader(Id, Master, N, Slaves, Group, PendingAck) ->
       Master ! {view, Group2},
       leader(Id, Master, N+1, Slaves2, Group2, PendingAck);
     {ack, Num, Peer} ->
-      io:format("got ack from ~w for ~w~n", [Num, Peer]),
+      io:format("got ack from ~w for ~w~n", [Peer, Num]),
       CurAck = maps:get(Num, PendingAck, maps:new()),
       Entry = maps:get(nodes, CurAck, []),
       E2 = lists:delete(Peer, Entry),
