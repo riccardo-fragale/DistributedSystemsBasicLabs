@@ -78,11 +78,12 @@ start(Id) ->
 
 init(Id, Rnd, Master) ->
                 random:seed(Rnd,Rnd,Rnd),
-                leader(Id,Master, 1, [],[Master]).
+                leader(Id,Master, 0, [],[Master]).
 
 %Old init for start(Id)
 %init(Id, Master) -> leader(Id, Master, [], [Master]).
 
+%Slave
 start(Id, Grp) ->
                 Rnd = random:uniform(1000),
                 Self = self(),
@@ -108,12 +109,10 @@ election(Id, Master, N, Last, Slaves, Group) ->
         case Slaves of
             [Self|Rest] -> 
                 io:format("Node ~w: I am the new leader~n", [Id]),
-                case Last of
-                    none -> ok;
-                    _ -> bcast(Id, Last, Rest)
-                end,
+                bcast(Id, {view, N, Slaves, Group},Rest),
                 Master ! {view, Group},
-                leader(Id, Master, N, Rest, Group);
+                bcast(Id, Last, Rest),
+                leader(Id, Master, N+1, Rest, Group);
             [Leader|Rest] ->
                 io:format("Node ~w: New Leader elected is ~w~n", [Id,Leader]),
                 erlang:monitor(process, Leader),
