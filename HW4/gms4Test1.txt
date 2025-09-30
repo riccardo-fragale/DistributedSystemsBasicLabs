@@ -1,0 +1,13 @@
+Worker <0.135.0> ignoring 27
+Worker <0.137.0> ignoring 27
+Worker <0.139.0> ignoring 27
+sending recast to <0.135.0> for {msg,27,{change,16}}
+sending recast to <0.137.0> for {msg,27,{change,16}}
+sending recast to <0.139.0> for {msg,27,{change,16}}
+sending recast to <0.135.0> for {msg,28,{change,10}}
+sending recast to <0.137.0> for {msg,28,{change,10}}
+sending recast to <0.139.0> for {msg,28,{change,10}}
+Worker <0.137.0> ignoring 41
+Worker <0.139.0> ignoring 41
+sending recast to <0.137.0> for {msg,41,{change,17}}
+sending recast to <0.139.0> for {msg,41,{change,17}}

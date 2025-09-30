@@ -8,5 +8,6 @@ erl -sname kista -setcookie 1234 -eval "
     compile:file(gui),
     compile:file(worker),
     compile:file(gms2),
-    compile:file(gms3).
+    compile:file(gms3),
+    compile:file(gms4).
 "
