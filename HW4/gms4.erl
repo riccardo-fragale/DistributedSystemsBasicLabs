@@ -105,13 +105,13 @@ election(Id, Master, N, Last, Slaves, [_ |Group], File) ->
   Self = self(),
   case Slaves of
     [Self|Rest] ->
-      %io:format("Node ~w: I am the new leader~n", [Id]),
+      io:format("Node ~w: I am the new leader~n", [Id]),
       bcast(Id, N, {view, N, Slaves, Group}, Rest),
       Master ! {view, Group},
       bcast(Id, N, Last, Rest),
       leader(Id, Master, N+1, Rest, Group, maps:new(), File);
     [Leader|Rest] ->
-      %io:format("Node ~w: New Leader elected is ~w~n", [Id, Leader]),
+      io:format("Node ~w: New Leader elected is ~w~n", [Id, Leader]),
       erlang:monitor(process, Leader),
       slave(Id, Master, Leader, N, Last, Rest, Group, File)
   end.
