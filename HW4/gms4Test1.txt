@@ -1,13 +1,101 @@
-Worker <0.135.0> ignoring 27
-Worker <0.137.0> ignoring 27
-Worker <0.139.0> ignoring 27
-sending recast to <0.135.0> for {msg,27,{change,16}}
-sending recast to <0.137.0> for {msg,27,{change,16}}
-sending recast to <0.139.0> for {msg,27,{change,16}}
-sending recast to <0.135.0> for {msg,28,{change,10}}
-sending recast to <0.137.0> for {msg,28,{change,10}}
-sending recast to <0.139.0> for {msg,28,{change,10}}
-Worker <0.137.0> ignoring 41
-Worker <0.139.0> ignoring 41
-sending recast to <0.137.0> for {msg,41,{change,17}}
-sending recast to <0.139.0> for {msg,41,{change,17}}
+Worker <0.160.0> ignoring 27
+Worker <0.162.0> ignoring 27
+Worker <0.163.0> ignoring 27
+sending recast to <0.160.0> for {msg,27,{change,1}}
+sending recast to <0.162.0> for {msg,27,{change,1}}
+sending recast to <0.163.0> for {msg,27,{change,1}}
+Worker <0.160.0> ignoring 40
+Worker <0.162.0> ignoring 40
+Worker <0.163.0> ignoring 40
+sending recast to <0.160.0> for {msg,40,{change,6}}
+sending recast to <0.162.0> for {msg,40,{change,6}}
+sending recast to <0.163.0> for {msg,40,{change,6}}
+Worker <0.160.0> ignoring 63
+Worker <0.162.0> ignoring 63
+Worker <0.163.0> ignoring 63
+sending recast to <0.160.0> for {msg,63,{change,8}}
+sending recast to <0.162.0> for {msg,63,{change,8}}
+sending recast to <0.163.0> for {msg,63,{change,8}}
+Worker <0.160.0> ignoring 68
+Worker <0.162.0> ignoring 68
+Worker <0.163.0> ignoring 68
+sending recast to <0.160.0> for {msg,68,{change,16}}
+sending recast to <0.162.0> for {msg,68,{change,16}}
+sending recast to <0.163.0> for {msg,68,{change,16}}
+sending recast to <0.160.0> for {msg,69,{change,3}}
+sending recast to <0.162.0> for {msg,69,{change,3}}
+sending recast to <0.163.0> for {msg,69,{change,3}}
+Worker <0.160.0> ignoring 75
+Worker <0.162.0> ignoring 75
+Worker <0.163.0> ignoring 75
+sending recast to <0.160.0> for {msg,75,{change,18}}
+sending recast to <0.162.0> for {msg,75,{change,18}}
+sending recast to <0.163.0> for {msg,75,{change,18}}
+Worker <0.160.0> ignoring 86
+Worker <0.162.0> ignoring 86
+Worker <0.163.0> ignoring 86
+sending recast to <0.160.0> for {msg,86,{change,12}}
+sending recast to <0.162.0> for {msg,86,{change,12}}
+sending recast to <0.163.0> for {msg,86,{change,12}}
+Worker <0.160.0> ignoring 92
+Worker <0.162.0> ignoring 92
+Worker <0.163.0> ignoring 92
+sending recast to <0.160.0> for {msg,92,{change,6}}
+sending recast to <0.162.0> for {msg,92,{change,6}}
+sending recast to <0.163.0> for {msg,92,{change,6}}
+sending recast to <0.162.0> for {msg,93,{change,1}}
+sending recast to <0.162.0> for {msg,94,{change,13}}
+sending recast to <0.162.0> for {msg,93,{change,1}}
+sending recast to <0.162.0> for {msg,94,{change,13}}
+sending recast to <0.162.0> for {msg,95,{change,17}}
+sending recast to <0.162.0> for {msg,96,{change,10}}
+sending recast to <0.162.0> for {msg,95,{change,17}}
+sending recast to <0.162.0> for {msg,96,{change,10}}
+sending recast to <0.162.0> for {msg,97,{change,18}}
+sending recast to <0.162.0> for {msg,97,{change,18}}
+sending recast to <0.162.0> for {msg,98,{change,10}}
+sending recast to <0.162.0> for {msg,98,{change,10}}
+sending recast to <0.162.0> for {msg,99,{change,20}}
+sending recast to <0.162.0> for {msg,99,{change,20}}
+sending recast to <0.162.0> for {msg,100,{change,6}}
+sending recast to <0.162.0> for {msg,100,{change,6}}
+sending recast to <0.162.0> for {msg,101,{change,8}}
+sending recast to <0.162.0> for {msg,101,{change,8}}
+sending recast to <0.162.0> for {msg,102,{change,4}}
+sending recast to <0.162.0> for {msg,103,{change,20}}
+sending recast to <0.162.0> for {msg,102,{change,4}}
+sending recast to <0.162.0> for {msg,103,{change,20}}
+sending recast to <0.162.0> for {msg,104,{change,2}}
+sending recast to <0.163.0> for {msg,104,{change,2}}
+sending recast to <0.162.0> for {msg,105,{change,11}}
+sending recast to <0.163.0> for {msg,105,{change,11}}
+sending recast to <0.162.0> for {msg,104,{change,2}}
+sending recast to <0.163.0> for {msg,104,{change,2}}
+sending recast to <0.162.0> for {msg,105,{change,11}}
+sending recast to <0.163.0> for {msg,105,{change,11}}
+sending recast to <0.162.0> for {msg,106,{change,1}}
+sending recast to <0.163.0> for {msg,106,{change,1}}
+sending recast to <0.162.0> for {msg,106,{change,1}}
+sending recast to <0.163.0> for {msg,106,{change,1}}
+sending recast to <0.162.0> for {msg,107,{change,12}}
+sending recast to <0.163.0> for {msg,107,{change,12}}
+sending recast to <0.162.0> for {msg,107,{change,12}}
+sending recast to <0.163.0> for {msg,107,{change,12}}
+sending recast to <0.162.0> for {msg,110,{change,5}}
+sending recast to <0.163.0> for {msg,110,{change,5}}
+sending recast to <0.162.0> for {msg,110,{change,5}}
+sending recast to <0.163.0> for {msg,110,{change,5}}
+sending recast to <0.162.0> for {msg,111,{change,17}}
+sending recast to <0.163.0> for {msg,111,{change,17}}
+sending recast to <0.162.0> for {msg,111,{change,17}}
+sending recast to <0.163.0> for {msg,111,{change,17}}
+sending recast to <0.162.0> for {msg,112,{change,18}}
+sending recast to <0.163.0> for {msg,112,{change,18}}
+sending recast to <0.162.0> for {msg,112,{change,18}}
+sending recast to <0.163.0> for {msg,112,{change,18}}
+sending recast to <0.162.0> for {msg,113,{change,17}}
+sending recast to <0.163.0> for {msg,113,{change,17}}
+sending recast to <0.162.0> for {msg,113,{change,17}}
+sending recast to <0.163.0> for {msg,113,{change,17}}
+sending recast to <0.162.0> for {msg,114,{change,17}}
+sending recast to <0.163.0> for {msg,114,{change,17}}
