@@ -10,7 +10,7 @@ generate()->
 
 between(Key, From, To) ->
     case {From, To} of
-        {F, T} when F == T ->. %Full circle; everything inside
+        {F, T} when F == T -> %Full circle; everything inside
             true; 
         {F, T} when F < T -> %normal case
             (Key > F andalso Key =< T);
