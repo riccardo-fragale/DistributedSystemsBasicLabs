@@ -64,36 +64,25 @@ check([Key|Keys], P, Failed, Timeout) ->
 
 
 run() ->
-    %% Start first node (bootstrap)
-    Id1 = key:generate(),
-    P1 = node1:start(Id1),
+	N1 = test:start(node1),
+	register(n1, N1),
 
-    %% Start 3 more nodes connected to P1
-    Id2 = key:generate(),
-    P2 = node1:start(Id2, P1),
+	N2 = test:start(node1, N1),
+	N3 = test:start(node1, N1),
+	N4 = test:start(node1, N1),
+	N5 = test:start(node1, N1),
+	N6 = test:start(node1, N1),
+	N7 = test:start(node1, N1),
+  	N8 = test:start(node1, N1),
 
-    Id3 = key:generate(),
-    P3 = node1:start(Id3, P1),
+  	timer:sleep(8000),
 
-    Id4 = key:generate(),
-    P4 = node1:start(Id4, P1),
+  	n1 ! probe,
 
-    io:format("Started 4 nodes: ~p, ~p, ~p, ~p~n", [P1, P2, P3, P4]),
+  	timer:sleep(500),
 
-    %% Give stabilize some time
-    timer:sleep(2000),
+  	N2 ! stop,
 
-	P1 ! {print_state},
-	P2 ! {print_state},
-	P3 ! {print_state},
-	P4 ! {print_state}.
+  	timer:sleep(3000),
 
-    %% Generate keys
-    %Keys = keys(5),
-    %io:format("Generated keys: ~p~n", [Keys]),
-
-    %% Add them via P1
-    %add(Keys, P1),
-
-    %% Check lookups
-    %check(Keys, P1).
+  	n1 ! probe.

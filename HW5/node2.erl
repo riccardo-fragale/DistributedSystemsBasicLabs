@@ -1,50 +1,57 @@
--module(node1).
+-module(node2).
 -define(Stabilize,1000).
 -define(Timeout,10000).
 
--export([start/1]).
--export([start/2]).
--export([node/3]).
--export([connect/2]).
+-compile(export_all).
 
 
 %Check termination printing
-node(Id, Predecessor, Successor) ->
+node(Id, Predecessor, Successor, Storage) ->
     receive
         {key, Qref, Peer} -> 
                 Peer ! {Qref, Id},
-                node(Id, Predecessor, Successor);
+                node(Id, Predecessor, Successor, Storage);
         {notify, New} ->
-                Pred = notify(New, Id, Predecessor),
-                node(Id, Pred, Successor);
+                {Pred, NewStore} = notify(New, Id, Predecessor, Storage),
+                node(Id, Pred, Successor, NewStore);
         {request, Peer} ->
                 %io:format("Request received"),
                 request(Peer, Predecessor),
-                node(Id, Predecessor, Successor);
+                node(Id, Predecessor, Successor, Storage);
         {status, Pred} ->
                 Succ = stabilize(Pred, Id, Successor),
-                node(Id, Predecessor, Succ);
+                node(Id, Predecessor, Succ, Storage);
         {terminate, Reason} -> %Termination printing
                 io:format("Node ~p terminating: ~p~n", [Id, Reason]),
                 ok;
         probe ->
                 create_probe(Id, Successor),
-                node(Id, Predecessor, Successor);
+                node(Id, Predecessor, Successor, Storage);
         {probe, Id, Nodes, T} ->
                 remove_probe(T, Nodes),
-                node(Id, Predecessor, Successor);
+                node(Id, Predecessor, Successor, Storage);
         {probe, Ref, Nodes, T} ->
                 forward_probe(Ref, T, Nodes, Id, Successor),
-                node(Id, Predecessor, Successor);
+                node(Id, Predecessor, Successor, Storage);
         stabilize ->
                 %io:format("Stabilization started"),
                 stabilize(Successor),
-                node(Id, Predecessor, Successor);
+                node(Id, Predecessor, Successor, Storage);
         %debug ->
                 %io:format("~w: pre: ~w suc: ~w~n", [Id, Predecessor, Successor]),
                 %node(Id, Predecessor, Successor)
+        {add, Key, Value, Qref, Client} ->
+                Added = add(Key, Value, Qref, Client,
+                            Id, Predecessor, Successor, Storage),
+                node(Id, Predecessor, Successor, Added);
+        {lookup, Key, Qref, Client} ->
+                lookup(Key, Qref, Client, Id, Predecessor, Successor, Storage),
+                node(Id, Predecessor, Successor, Storage);
+        {handover, Elements} ->
+                Merged = storage:merge(Storage, Elements),
+                node(Id, Predecessor, Successor, Merged);
         _ -> 
-            node(Id, Predecessor, Successor)  %Catch all clause
+            node(Id, Predecessor, Successor, Storage)  %Catch all clause
     end.
 
 
@@ -85,16 +92,20 @@ request(Peer, Predecessor) ->
                         Peer ! {status, {Pkey, Ppid}}
         end.
 
-notify({Nkey, Npid}, Id, Predecessor) ->
+notify({Nkey, Npid}, Id, Predecessor, Store) ->
      case Predecessor of
          nil ->
-             {Nkey,Npid};
+            Keep = handover(Id, Store, Nkey, Npid),
+            {{Nkey,Npid}, Keep};
          {Pkey, _} ->
              case key:between(Nkey, Pkey, Id) of
                 true ->
-                        {Nkey, Npid};
+                        %New one is between
+                        Keep = handover(Id, Store, Nkey, Npid),
+                        {{Nkey, Npid}, Keep};
                 false ->
-                        Predecessor
+                        %keep old one
+                        {Predecessor, Store}
                 end
      end.
 	
@@ -110,7 +121,8 @@ init(Id, Peer) ->
         Predecessor = nil,
         {ok, Successor} = connect(Id, Peer),
         schedule_stabilize(),
-        node(Id, Predecessor, Successor).
+        Storage = storage:create(),
+        node(Id, Predecessor, Successor, Storage).
 
 
 connect(Id, nil) ->
@@ -123,6 +135,34 @@ connect(Id, Peer) ->
                      {ok,{Skey, Peer}}
         after ?Timeout ->
                 io:format("Time out: no response~n")
+        end.
+
+add(Key, Value, Qref, Client, _Id, nil, _Successor, Store)->
+    %No predecessor, we handle all keys
+    Client ! {Qref, ok},
+    storage:add(Key, Value, Store);
+add(Key, Value, Qref, Client, Id, {Pkey, _}, {_, Spid}, Store) ->
+        case key:between(Key, Pkey, Id) of
+                true ->
+                        Client ! {Qref, ok},
+                        storage:add(key, Value, Store),
+                        ok;
+                false ->
+                        Spid ! {add, Key, Value, Qref, Client},
+                        ok
+        end.
+lookup(Key, Qref, Client, Id, {Okey, _}, Successor, Store) ->
+        Result = storage:lookup(Key, Store),
+        Client ! {Qref, Result};
+lookup(Key, Qref, Client, Id, {Pkey, _}, Successor, Store) ->
+        case key:between(Key, Pkey, Id) of
+                true ->
+                        Result = storage:lookup(Key, Store),
+                        Client ! {Qref, Result};
+                false ->
+                        {_, Spid} = Successor,
+                        Spid ! {lookup, Key, Qref, Client},
+                        ok
         end.
 
 
@@ -140,3 +180,7 @@ forward_probe(Ref, T, Nodes, Id, Successor) ->
         Spid ! {probe, Ref, Nodes++[Id], T}.
 
 
+handover(Id, Store, Nkey, Npid) ->
+        {Keep, Rest} = storage:split(Nkey, Id, Store),
+        Npid ! {handover, Rest},
+        Keep.
