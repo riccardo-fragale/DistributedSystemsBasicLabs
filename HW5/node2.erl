@@ -11,42 +11,54 @@ node(Id, Predecessor, Successor, Storage) ->
         {key, Qref, Peer} -> 
                 Peer ! {Qref, Id},
                 node(Id, Predecessor, Successor, Storage);
+
         {notify, New} ->
                 {Pred, NewStore} = notify(New, Id, Predecessor, Storage),
                 node(Id, Pred, Successor, NewStore);
+
         {request, Peer} ->
                 %io:format("Request received"),
                 request(Peer, Predecessor),
                 node(Id, Predecessor, Successor, Storage);
+
         {status, Pred} ->
                 Succ = stabilize(Pred, Id, Successor),
                 node(Id, Predecessor, Succ, Storage);
+
         {terminate, Reason} -> %Termination printing
                 io:format("Node ~p terminating: ~p~n", [Id, Reason]),
                 ok;
+
         probe ->
                 create_probe(Id, Successor),
                 node(Id, Predecessor, Successor, Storage);
+
         {probe, Id, Nodes, T} ->
                 remove_probe(T, Nodes),
                 node(Id, Predecessor, Successor, Storage);
+
         {probe, Ref, Nodes, T} ->
                 forward_probe(Ref, T, Nodes, Id, Successor),
                 node(Id, Predecessor, Successor, Storage);
+
         stabilize ->
                 %io:format("Stabilization started"),
                 stabilize(Successor),
                 node(Id, Predecessor, Successor, Storage);
+
         %debug ->
                 %io:format("~w: pre: ~w suc: ~w~n", [Id, Predecessor, Successor]),
                 %node(Id, Predecessor, Successor)
+
         {add, Key, Value, Qref, Client} ->
                 Added = add(Key, Value, Qref, Client,
                             Id, Predecessor, Successor, Storage),
                 node(Id, Predecessor, Successor, Added);
+
         {lookup, Key, Qref, Client} ->
                 lookup(Key, Qref, Client, Id, Predecessor, Successor, Storage),
                 node(Id, Predecessor, Successor, Storage);
+
         {handover, Elements} ->
                 Merged = storage:merge(Storage, Elements),
                 node(Id, Predecessor, Successor, Merged);
@@ -145,11 +157,10 @@ add(Key, Value, Qref, Client, Id, {Pkey, _}, {_, Spid}, Store) ->
         case key:between(Key, Pkey, Id) of
                 true ->
                         Client ! {Qref, ok},
-                        storage:add(key, Value, Store),
-                        ok;
+                        storage:add(Key, Value, Store);
                 false ->
                         Spid ! {add, Key, Value, Qref, Client},
-                        ok
+                        Store
         end.
 lookup(Key, Qref, Client, Id, {Okey, _}, Successor, Store) ->
         Result = storage:lookup(Key, Store),

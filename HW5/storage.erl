@@ -3,23 +3,28 @@
 -compile(export_all).
 
 create() ->
-    [].
+    maps:new().
 
 add(Key, Value, Store) ->
-    case lists:keyreplace(Key, 1, Store, {Key, Value}) of
-        false ->
-            [{Key, Value} | Store];
-        NewStore ->
-            NewStore
-    end.
+    maps:put(Key, Value, Store).
 
 lookup(Key, Store) ->
-    lists:keyfind(Key, 1, Store).
+    case maps:find(Key, Store) of 
+        {ok, Val} -> {Key, Val};
+        error -> false
+    end.
 
 split(From, To, Store) ->
-    Updated = lists:filter(fun({K,_}) -> key:between(K, From, To) end, Store),
-    Rest = lists:filter(fun({K,_}) -> not key:between(K, From, To)end, Store),
-    {Updated, Rest}.
+    maps:fold(fun(Key, Value, {UpdatedAcc, RestAcc}) ->
+        case key:between(Key, From, To) of 
+            true ->
+                {maps:put(Key, Value, UpdatedAcc), RestAcc};
+            false ->
+                {UpdatedAcc, maps:put(Key, Value, RestAcc)}
+            end
+        end,
+        {create(),create()},
+        Store).
 
 merge(Entries, Store) ->
-    lists:foldl(fun({K,V}, Acc) -> add(K, V, Acc) end, Store, Entries).
+    maps:merge(Entries, Store).
