@@ -8,6 +8,7 @@ erl -sname kista -setcookie 1234 -eval "
     compile:file(key),
     compile:file(node2),
     compile:file(storage),
-    compile:file(performance_test),
+    compile:file(node3),
+    compile:file(node4),
     io:format(\"Modules compiled successfully.~n\").
 "

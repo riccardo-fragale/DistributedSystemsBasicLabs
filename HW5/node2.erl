@@ -1,5 +1,5 @@
 -module(node2).
--define(Stabilize,1000).
+-define(Stabilize,500).
 -define(Timeout,10000).
 
 -compile(export_all).
@@ -25,8 +25,8 @@ node(Id, Predecessor, Successor, Storage) ->
                 Succ = stabilize(Pred, Id, Successor),
                 node(Id, Predecessor, Succ, Storage);
 
-        {terminate, Reason} -> %Termination printing
-                io:format("Node ~p terminating: ~p~n", [Id, Reason]),
+        stop -> 
+                io:format("Node ~p terminating: ~n", [Id]),
                 ok;
 
         probe ->
@@ -46,9 +46,9 @@ node(Id, Predecessor, Successor, Storage) ->
                 stabilize(Successor),
                 node(Id, Predecessor, Successor, Storage);
 
-        %debug ->
-                %io:format("~w: pre: ~w suc: ~w~n", [Id, Predecessor, Successor]),
-                %node(Id, Predecessor, Successor)
+        debug ->
+                io:format("~w: pre: ~w suc: ~w, storage: ~w~n", [Id, Predecessor, Successor, storage:size(Storage)]),
+                node(Id, Predecessor, Successor, Storage);
 
         {add, Key, Value, Qref, Client} ->
                 Added = add(Key, Value, Qref, Client,
@@ -172,8 +172,7 @@ lookup(Key, Qref, Client, Id, {Pkey, _}, Successor, Store) ->
                         Client ! {Qref, Result};
                 false ->
                         {_, Spid} = Successor,
-                        Spid ! {lookup, Key, Qref, Client},
-                        ok
+                        Spid ! {lookup, Key, Qref, Client}
         end.
 
 
@@ -192,6 +191,6 @@ forward_probe(Ref, T, Nodes, Id, Successor) ->
 
 
 handover(Id, Store, Nkey, Npid) ->
-        {Keep, Rest} = storage:split(Nkey, Id, Store),
+        {Keep, Rest} = storage:split(Id, Nkey, Store),
         Npid ! {handover, Rest},
         Keep.
