@@ -29,5 +29,5 @@ split(From, To, Store) ->
 merge(Entries, Store) ->
     maps:merge(Entries, Store).
 
-size(Store)
+size(Store) ->
         maps:size(Store).

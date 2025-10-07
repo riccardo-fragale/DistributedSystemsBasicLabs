@@ -13,7 +13,7 @@ between(Key, From, To) ->
         {F, T} when F == T -> %Full circle; everything inside
             true; 
         {F, T} when F < T -> %normal case
-            (Key > F andalso Key =< T);
+            (Key > F) andalso (Key =< T);
         {F, T} ->
             % F > T, example circle from 0 to 12; I want from 10 to 2 which means numbers
             % [10,11,12,0,1,2] 

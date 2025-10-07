@@ -1,5 +1,5 @@
 -module(node3).
--define(Stabilize,1000).
+-define(Stabilize,500).
 -define(Timeout,10000).
 
 -compile(export_all).
@@ -60,12 +60,15 @@ node(Id, Predecessor, Successor, Next, Storage) ->
                 node(Id, Predecessor, Successor, Next, Storage);
 
         {handover, Elements} ->
-                Merged = storage:merge(Storage, Elements),
+                %reverse order
+                Merged = storage:merge(Elements, Storage),
                 node(Id, Predecessor, Successor, Next, Merged);
 
         {'DOWN', Ref, process, _, _} ->
                 {Pred, Succ, Nxt} = down(Ref, Predecessor, Successor, Next),
                 node(Id, Pred, Succ, Nxt, Storage);
+        stop ->
+                ok;
         _ -> 
             node(Id, Predecessor, Successor, Next, Storage)  %Catch all clause
     end.
@@ -106,7 +109,7 @@ request(Peer, Predecessor, Successor) ->
         case Predecessor of
                 nil ->
                         Peer ! {status, nil, Successor};
-                {Pkey, Ppid} ->
+                {Pkey, _, Ppid} ->
                         Peer ! {status, {Pkey, Ppid}, Successor}
         end.
 
@@ -148,14 +151,14 @@ init(Id, Peer) ->
 
 
 connect(Id, nil) ->
-        Ref = monitor(self())
+        Ref = monitor(self()),
         {ok,{Id, Ref, self()}};
 connect(Id, Peer) ->
         Qref = make_ref(),
         Peer ! {key, Qref, self()},
         receive
                 {Qref, Skey} ->
-                     SRef = monitor(self())
+                     SRef = monitor(Peer),
                      {ok,{Skey, SRef, Peer}}
         after ?Timeout ->
                 io:format("Time out: no response~n")
