@@ -1,0 +1,1 @@
+compile:file("test.erl"), compile:file("node2.erl"), compile:file("storage.erl"), compile:file("key.erl"), compile:file("node3.erl"), compile:file("node4.erl"), compile:file("node1.erl"), io:format("kista: compiled files~n"), timer:sleep(200), P = test:start(node2), erlang:register(n1,P), io:format("kista: registered n1 ~p~n", [P]), timer:sleep(infinity).
