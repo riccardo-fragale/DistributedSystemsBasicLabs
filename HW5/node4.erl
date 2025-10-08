@@ -34,6 +34,13 @@ node(Id, Predecessor, Successor, Next, Storage, Replica) ->
                 create_probe(Id, Successor),
                 node(Id, Predecessor, Successor, Next, Storage, Replica);
 
+        print_storage ->
+                Keys = maps:keys(Storage),
+                RepKeys = maps:keys(Replica),
+                io:format("~n[Node ~p] Storage: size=~p, keys=~p~n[Node ~p] Replica: size=~p, keys=~p~n", 
+                          [Id, storage:size(Storage), Keys, Id, storage:size(Replica), RepKeys]),
+                node(Id, Predecessor, Successor, Next, Storage, Replica);
+
         {probe, Id, Nodes, T} ->
                 remove_probe(T, Nodes),
                 node(Id, Predecessor, Successor, Next, Storage, Replica);
@@ -72,25 +79,26 @@ node(Id, Predecessor, Successor, Next, Storage, Replica) ->
                 end;
         
         {replicate, Key, Value, Qref, Client} ->
+                io:format("[Node ~p] RECEIVED REPLICA of key ~p~n", [Id, Key]),
                 Added = storage:add(Key, Value, Replica),
                 Client ! {Qref, ok},
                 node(Id, Predecessor, Successor, Next, Storage, Added);
 
 
         {handover, Elements} ->
-                Merged = storage:merge(Storage, Elements),
+                Merged = storage:merge(Elements, Storage),
                 io:format("~w got handover: store: ~w, rep: ~w~n", [Id, storage:size(Merged), storage:size(Replica)]),
                 node(Id, Predecessor, Successor, Next, Merged, Replica);
 
         {handover, Elements, Rep} ->
-                Merged = storage:merge(Storage, Elements),
-                % RepMerged = storage:merge(Rep, Replica),
-                io:format("~w got handover: store: ~w, rep: ~w~n", [Id, storage:size(Merged), storage:size(Rep)]),
-                node(Id, Predecessor, Successor, Next, Merged, Replica);
+                Merged = storage:merge(Elements, Storage),
+                RepMerged = storage:merge(Rep, Replica),
+                io:format("~w got handover: store: ~w, rep: ~w~n", [Id, storage:size(Merged), storage:size(RepMerged)]),
+                node(Id, Predecessor, Successor, Next, Merged, RepMerged);
 
         {updaterep, Rep} ->
                 io:format("~w got replica update: ~w~n", [Id, storage:size(Rep)]),
-                node(Id, Predecessor, Successor, Next, Storage, Replica);
+                node(Id, Predecessor, Successor, Next, Storage, Rep);
 
         {triggerrep} ->
                 sendrep(Successor, Storage);
@@ -202,14 +210,17 @@ connect(Id, Peer) ->
 
 add(Key, Value, Qref, Client, _Id, nil, {_, _, Spid}, Store)->
     %No predecessor, we handle all keys
+    io:format("[Node ~p] STORING key ~p locally, REPLICATING to successor~n", [_Id, Key]),
     Spid ! {replicate, Key, Value, Qref, Client},
     storage:add(Key, Value, Store);
 add(Key, Value, Qref, Client, Id, {Pkey, _, _}, {_, _, Spid}, Store) ->
         case key:between(Key, Pkey, Id) of
                 true ->
+                        io:format("[Node ~p] STORING key ~p locally (responsible), REPLICATING to successor~n", [Id, Key]),
                         Spid ! {replicate, Key, Value, Qref, Client},
                         storage:add(Key, Value, Store);
                 false ->
+                        io:format("[Node ~p] FORWARDING key ~p to successor~n", [Id, Key]),
                         Spid ! {add, Key, Value, Qref, Client},
                         Store
         end.
@@ -267,13 +278,17 @@ drop(Ref) ->
 
 % this just completely breaks when next goes down, so killing them needs to be spaced a lot in time
 down(Ref, {_, Ref, _}, Successor, Next, Storage, Replica) ->
+        io:format("~n[Node ~p] PREDECESSOR DIED - Merging replica into storage and re-replicating to successor~n", [element(1, Successor)]),
         Sto = storage:merge(Replica, Storage),
+        io:format("[Node ~p] Storage before merge: ~p, Replica size: ~p, After merge: ~p~n", 
+                  [element(1, Successor), storage:size(Storage), storage:size(Replica), storage:size(Sto)]),
         sendrep(Successor, Sto),
         stabilize(Successor),
         {nil, Successor, Next, Sto, storage:create()}; %predecessor died, set to nil
 down(Ref, Predecessor, {_, Ref, _}, {Nkey, _, Npid}, Storage, Replica) ->
+        io:format("~n[Node ~p] SUCCESSOR DIED - Adopting Next as new successor~n", [element(1, Predecessor)]),
         NewRef = monitor(Npid),
-        Npid ! {request, self()}, %Successor died, adopt next as successor
+        Npid ! {request, self()}, 
         sendrep({Nkey, NewRef, Npid}, Storage),
         stabilize({Nkey, NewRef, Npid}),
         {Predecessor, {Nkey, NewRef, Npid}, nil, Storage, Replica}.

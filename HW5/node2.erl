@@ -33,6 +33,11 @@ node(Id, Predecessor, Successor, Storage) ->
                 create_probe(Id, Successor),
                 node(Id, Predecessor, Successor, Storage);
 
+        print_storage ->
+                Keys = maps:keys(Storage),
+                io:format("~n[Node ~p] Storage: size=~p, keys=~p~n", [Id, storage:size(Storage), Keys]),
+                node(Id, Predecessor, Successor, Storage);
+
         {probe, Id, Nodes, T} ->
                 remove_probe(T, Nodes),
                 node(Id, Predecessor, Successor, Storage);
@@ -61,6 +66,8 @@ node(Id, Predecessor, Successor, Storage) ->
 
         {handover, Elements} ->
                 Merged = storage:merge(Storage, Elements),
+                io:format("~n[Node ~p] HANDOVER: received ~p entries (before: ~p, after: ~p)~n",
+                          [Id, maps:size(Elements), storage:size(Storage), storage:size(Merged)]),
                 node(Id, Predecessor, Successor, Merged);
         _ -> 
             node(Id, Predecessor, Successor, Storage)  %Catch all clause
@@ -151,27 +158,34 @@ connect(Id, Peer) ->
 
 add(Key, Value, Qref, Client, _Id, nil, _Successor, Store)->
     %No predecessor, we handle all keys
+    io:format("[Node ~p] STORING key ~p (no predecessor, handling all keys)~n", [_Id, Key]),
     Client ! {Qref, ok},
     storage:add(Key, Value, Store);
 add(Key, Value, Qref, Client, Id, {Pkey, _}, {_, Spid}, Store) ->
         case key:between(Key, Pkey, Id) of
                 true ->
+                        io:format("[Node ~p] STORING key ~p (responsible: between ~p and ~p)~n", [Id, Key, Pkey, Id]),
                         Client ! {Qref, ok},
                         storage:add(Key, Value, Store);
                 false ->
+                        io:format("[Node ~p] FORWARDING key ~p to successor~n", [Id, Key]),
                         Spid ! {add, Key, Value, Qref, Client},
                         Store
         end.
 lookup(Key, Qref, Client, _Id, nil, Successor, Store) ->
         Result = storage:lookup(Key, Store),
+        io:format("[Node ~p] LOOKUP key ~p -> ~p (no predecessor)~n", [_Id, Key, Result]),
         Client ! {Qref, Result};
 lookup(Key, Qref, Client, Id, {Pkey, _}, Successor, Store) ->
         case key:between(Key, Pkey, Id) of
                 true ->
                         Result = storage:lookup(Key, Store),
+                        io:format("[Node ~p] LOOKUP key ~p -> ~p (responsible: between ~p and ~p)~n", 
+                                  [Id, Key, Result, Pkey, Id]),
                         Client ! {Qref, Result};
                 false ->
                         {_, Spid} = Successor,
+                        io:format("[Node ~p] FORWARDING lookup of key ~p to successor~n", [Id, Key]),
                         Spid ! {lookup, Key, Qref, Client}
         end.
 
