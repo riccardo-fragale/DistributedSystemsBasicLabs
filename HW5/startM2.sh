@@ -11,7 +11,8 @@ NODE_STOCK="stockholm"
 NODE_SPANGA="spanga"
 NODE_LULEA="lulea"
 NODE_GOTEBORG="goteborg"
-HOST="Riccardos-MacBook-Air"
+#HOST="Riccardos-MacBook-Air"
+HOST="n176-p39"
 ERL_FILES=("test" "node2" "storage" "key" "node3" "node4" "node1")
 
 # Helper function to write Erlang commands directly to a file (no shell escaping)
